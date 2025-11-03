@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Smart Spreadsheet Dashboard</title>
+  
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            // Modern Blue-Purple Gradient Theme
+            'primary': {
+              50: '#f0f7ff',
+              100: '#e0f0fe',
+              200: '#b9e1fe',
+              300: '#7cc8fd',
+              400: '#36acfa',
+              500: '#0c8ce9',
+              600: '#0070c7',
+              700: '#0159a1',
+              800: '#064c85',
+              900: '#0a406e',
+              950: '#072848'
+            },
+            'secondary': {
+              50: '#f8f7ff',
+              100: '#f2f1fe',
+              200: '#e7e5fd',
+              300: '#d1ccfb',
+              400: '#b5a9f7',
+              500: '#9b82f1',
+              600: '#8b5ae8',
+              700: '#7c48d4',
+              800: '#6a3cb2',
+              900: '#573492',
+              950: '#351f63'
+            },
+            'accent': {
+              50: '#fef2f2',
+              100: '#fee2e2',
+              200: '#fecaca',
+              300: '#fca5a5',
+              400: '#f87171',
+              500: '#ef4444',
+              600: '#dc2626',
+              700: '#b91c1c',
+              800: '#991b1b',
+              900: '#7f1d1d',
+              950: '#450a0a'
+            },
+            'surface': {
+              0: '#ffffff',
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              400: '#94a3b8',
+              500: '#64748b',
+              600: '#475569',
+              700: '#334155',
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#020617'
+            },
+            // Dark theme colors
+            'dark': {
+              'bg-primary': '#0a0e27',
+              'bg-secondary': '#1a1f3a',
+              'bg-tertiary': '#252b4a',
+              'surface': '#2d3347',
+              'border': '#3d4465',
+              'text-primary': '#e2e8f0',
+              'text-secondary': '#94a3b8',
+              'text-tertiary': '#64748b'
+            }
+          },
+          fontFamily: {
+            'sans': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            'mono': ['JetBrains Mono', 'Fira Code', 'Monaco', 'monospace']
+          },
+          fontSize: {
+            'xs': ['0.75rem', { lineHeight: '1rem' }],
+            'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+            'base': ['1rem', { lineHeight: '1.5rem' }],
+            'lg': ['1.125rem', { lineHeight: '1.75rem' }],
+            'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+            '2xl': ['1.5rem', { lineHeight: '2rem' }],
+            '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+            '4xl': ['2.25rem', { lineHeight: '2.5rem' }]
+          },
+          spacing: {
+            '18': '4.5rem',
+            '88': '22rem',
+            '128': '32rem'
+          },
+          boxShadow: {
+            'soft': '0 2px 8px 0 rgba(0, 0, 0, 0.05)',
+            'medium': '0 4px 16px 0 rgba(0, 0, 0, 0.08)',
+            'strong': '0 8px 32px 0 rgba(0, 0, 0, 0.12)',
+            'glow': '0 0 20px rgba(59, 130, 246, 0.15)',
+            'dark-soft': '0 2px 8px 0 rgba(0, 0, 0, 0.3)',
+            'dark-medium': '0 4px 16px 0 rgba(0, 0, 0, 0.4)',
+            'dark-strong': '0 8px 32px 0 rgba(0, 0, 0, 0.6)'
+          },
+          borderRadius: {
+            'xl': '0.75rem',
+            '2xl': '1rem',
+            '3xl': '1.5rem'
+          },
+          backdropBlur: {
+            'xs': '2px'
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.3s ease-in-out',
+            'slide-up': 'slideUp 0.3s ease-out',
+            'bounce-gentle': 'bounceGentle 2s infinite',
+            'pulse-glow': 'pulseGlow 2s infinite'
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(10px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' }
+            },
+            bounceGentle: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-5px)' }
+            },
+            pulseGlow: {
+              '0%, 100%': { boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)' },
+              '50%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.6)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- External libs -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+<body class="bg-surface-50 dark:bg-dark-bg-primary font-sans transition-colors duration-300 min-h-screen">
+  <!-- Modern Enhanced Header -->
+  <header class="bg-gradient-to-r from-primary-600 via-primary-700 to-secondary-600 dark:from-primary-800 dark:via-primary-900 dark:to-secondary-800 text-white shadow-strong dark:shadow-dark-strong backdrop-blur-sm border-b border-primary-500/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3 lg:space-x-4">
+          <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-primary-400 to-secondary-500 rounded-xl flex items-center justify-center shadow-medium animate-pulse-glow">
+            <svg class="w-5 h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+              </path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-xl lg:text-2xl xl:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-surface-100">
+              Smart Spreadsheet Dashboard
+            </h1>
+            <div class="text-primary-200 dark:text-primary-300 text-xs lg:text-sm font-medium opacity-90">
+              AI-Powered Data Analysis • CSV/JSON Support • Interactive Charts • Theme Toggle
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-2 lg:gap-3 items-center">
+          <!-- Theme Toggle -->
+          <button id="themeToggle"
+            class="p-2 lg:p-3 bg-white/10 hover:bg-white/20 dark:bg-white/5 dark:hover:bg-white/10 rounded-xl transition-all duration-300 backdrop-blur-sm group"
+            title="Toggle theme">
+            <svg class="w-4 h-4 lg:w-5 lg:h-5 text-yellow-300 dark:text-surface-300 group-hover:scale-110 transition-transform duration-200" 
+                 id="lightIcon" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+            </svg>
+            <svg class="w-4 h-4 lg:w-5 lg:h-5 text-surface-300 hidden group-hover:scale-110 transition-transform duration-200" 
+                 id="darkIcon" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+            </svg>
+          </button>
+          
+          <button id="exportWorkspaceBtn"
+            class="px-3 py-2 lg:px-4 lg:py-3 bg-white/90 hover:bg-white text-primary-700 hover:text-primary-800 dark:bg-surface-800 dark:text-surface-200 dark:hover:bg-surface-700 rounded-xl font-medium transition-all duration-300 shadow-medium hover:shadow-strong text-sm lg:text-base backdrop-blur-sm group">
+            <svg class="w-4 h-4 inline mr-1 lg:mr-2 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+              </path>
+            </svg>
+            <span class="hidden sm:inline">Export</span>
+          </button>
+          
+          <button id="clearWorkspaceBtn"
+            class="px-3 py-2 lg:px-4 lg:py-3 bg-accent-500 hover:bg-accent-600 dark:bg-accent-600 dark:hover:bg-accent-700 rounded-xl text-white font-medium transition-all duration-300 shadow-medium hover:shadow-strong text-sm lg:text-base group">
+            <svg class="w-4 h-4 inline mr-1 lg:mr-2 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+              </path>
+            </svg>
+            <span class="hidden sm:inline">Clear</span>
+          </button>
+          
+          <button id="helpBtn"
+            class="p-2 lg:p-3 bg-surface-600 hover:bg-surface-700 dark:bg-surface-700 dark:hover:bg-surface-600 rounded-xl text-white transition-all duration-300 shadow-medium hover:shadow-strong group"
+            title="Keyboard Shortcuts (?)">
+            <svg class="w-4 h-4 lg:w-5 lg:h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Modern Responsive Main Content -->
+  <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
+    <!-- Modern Enhanced Left Panel -->
+    <aside class="xl:col-span-3 space-y-4 sm:space-y-6">
+      <!-- File Upload Section -->
+      <div class="bg-white dark:bg-dark-bg-secondary rounded-2xl shadow-soft dark:shadow-dark-soft p-4 sm:p-6 border border-surface-200 dark:border-dark-border hover:shadow-medium dark:hover:shadow-dark-medium transition-all duration-300">
+        <h2 class="text-lg sm:text-xl font-bold text-surface-900 dark:text-dark-text-primary mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 sm:mr-3 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+          </svg> Upload Data
+        </h2>
+        <div id="dropZone"
+          class="border-2 border-dashed border-surface-300 dark:border-dark-border p-4 sm:p-6 rounded-xl text-center cursor-pointer bg-surface-50 dark:bg-dark-bg-tertiary hover:bg-surface-100 dark:hover:bg-surface-800 hover:border-primary-400 dark:hover:border-primary-500 transition-all duration-300 group">
+          <svg class="w-8 h-8 text-surface-400 dark:text-surface-500 mx-auto mb-2 group-hover:text-primary-500 dark:group-hover:text-primary-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+          </svg>
+          <div class="text-sm font-semibold text-surface-700 dark:text-surface-300 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-300">Drag & drop your files here</div>
+          <div class="text-xs text-surface-500 dark:text-surface-400 mt-1">or click to browse (CSV / JSON)</div>
+          <input id="fileInput" type="file" accept=".csv,.json" multiple class="hidden" />
+        </div>
+      </div>
+      <!-- Files List -->
+      <div class="bg-white dark:bg-dark-bg-secondary rounded-2xl shadow-soft dark:shadow-dark-soft p-4 sm:p-6 border border-surface-200 dark:border-dark-border hover:shadow-medium dark:hover:shadow-dark-medium transition-all duration-300">
+        <h3 class="text-lg sm:text-xl font-bold text-surface-900 dark:text-dark-text-primary mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 sm:mr-3 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+            </path>
+          </svg> Files
+        </h3>
+        <div id="filesList" class="space-y-2 max-h-48 sm:max-h-64 overflow-auto scrollbar-thin scrollbar-track-surface-100 dark:scrollbar-track-surface-800 scrollbar-thumb-surface-300 dark:scrollbar-thumb-surface-600"></div>
+      </div>
+      <!-- Quick Actions -->
+      <div class="bg-white dark:bg-dark-bg-secondary rounded-2xl shadow-soft dark:shadow-dark-soft p-4 sm:p-6 border border-surface-200 dark:border-dark-border hover:shadow-medium dark:hover:shadow-dark-medium transition-all duration-300">
+        <h3 class="text-lg sm:text-xl font-bold text-surface-900 dark:text-dark-text-primary mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 sm:mr-3 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg> Quick Actions
+        </h3>
+        <div class="grid grid-cols-1 gap-2 sm:gap-3">
+          <button id="autoCleanBtn"
+            class="px-3 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-green-500 to-emerald-600 dark:from-green-600 dark:to-emerald-700 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 dark:hover:from-green-700 dark:hover:to-emerald-800 transition-all duration-300 font-semibold text-sm shadow-soft hover:shadow-medium transform hover:scale-[1.02] active:scale-[0.98]">
+            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>Auto-clean Data
+          </button>
+          <button id="compareBtn"
+            class="px-3 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-amber-500 to-orange-600 dark:from-amber-600 dark:to-orange-700 text-white rounded-xl hover:from-amber-600 hover:to-orange-700 dark:hover:from-amber-700 dark:hover:to-orange-800 transition-all duration-300 font-semibold text-sm shadow-soft hover:shadow-medium transform hover:scale-[1.02] active:scale-[0.98]">
+            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+            </svg>Compare Headers
+          </button>
+          <button id="vlookupBtn"
+            class="px-3 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-700 dark:to-secondary-700 text-white rounded-xl hover:from-primary-700 hover:to-secondary-700 dark:hover:from-primary-800 dark:hover:to-secondary-800 transition-all duration-300 font-semibold text-sm shadow-soft hover:shadow-medium transform hover:scale-[1.02] active:scale-[0.98]">
+            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+            </svg>VLOOKUP Merge
+          </button>
+          <button id="optimizeBtn"
+            class="px-3 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-purple-600 to-violet-700 dark:from-purple-700 dark:to-violet-800 text-white rounded-xl hover:from-purple-700 hover:to-violet-800 dark:hover:from-purple-800 dark:hover:to-violet-900 transition-all duration-300 font-semibold text-sm shadow-soft hover:shadow-medium transform hover:scale-[1.02] active:scale-[0.98]">
+            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>Optimize Data
+          </button>
+          <button id="validateBtn"
+            class="px-3 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-indigo-600 to-blue-700 dark:from-indigo-700 dark:to-blue-800 text-white rounded-xl hover:from-indigo-700 hover:to-blue-800 dark:hover:from-indigo-800 dark:hover:to-blue-900 transition-all duration-300 font-semibold text-sm shadow-soft hover:shadow-medium transform hover:scale-[1.02] active:scale-[0.98]">
+            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>Validate Data
+          </button>
+        </div>
+      </div>
+      <!-- Performance Monitor -->
+      <div class="bg-white dark:bg-dark-bg-secondary rounded-2xl shadow-soft dark:shadow-dark-soft p-4 sm:p-6 border border-surface-200 dark:border-dark-border hover:shadow-medium dark:hover:shadow-dark-medium transition-all duration-300">
+        <h3 class="text-lg sm:text-xl font-bold text-surface-900 dark:text-dark-text-primary mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 sm:mr-3 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+            </path>
+          </svg> Performance
+        </h3>
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between items-center p-2 rounded-lg bg-surface-50 dark:bg-surface-800/50">
+            <span class="text-surface-600 dark:text-surface-400 font-medium">Memory Usage:</span>
+            <span id="memoryUsage" class="font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-md">0 MB</span>
+          </div>
+          <div class="flex justify-between items-center p-2 rounded-lg bg-surface-50 dark:bg-surface-800/50">
+            <span class="text-surface-600 dark:text-surface-400 font-medium">Render Time:</span>
+            <span id="renderTime" class="font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-md">0ms</span>
+          </div>
+          <div class="flex justify-between items-center p-2 rounded-lg bg-surface-50 dark:bg-surface-800/50">
+            <span class="text-surface-600 dark:text-surface-400 font-medium">Cache Hit Rate:</span>
+            <span id="cacheHitRate" class="font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 px-2 py-1 rounded-md">0%</span>
+          </div>
+        </div>
+      </div>
+      <!-- Chat Prompts -->
+      <div class="bg-white dark:bg-dark-bg-secondary rounded-2xl shadow-soft dark:shadow-dark-soft p-4 sm:p-6 border border-surface-200 dark:border-dark-border hover:shadow-medium dark:hover:shadow-dark-medium transition-all duration-300">
+        <h3 class="text-lg sm:text-xl font-bold text-surface-900 dark:text-dark-text-primary mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 sm:mr-3 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+            </path>
+          </svg> Quick Prompts
+        </h3>
+        <div class="grid grid-cols-1 gap-2">
+          <button
+            class="chatPrompt text-left px-3 py-2 sm:px-4 sm:py-3 text-sm bg-surface-50 dark:bg-surface-800 hover:bg-primary-50 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 text-surface-700 dark:text-surface-300 rounded-xl transition-all duration-300 font-medium border border-transparent hover:border-primary-200 dark:hover:border-primary-700 transform hover:scale-[1.02]">
+            How many rows? </button>
+          <button
+            class="chatPrompt text-left px-3 py-2 sm:px-4 sm:py-3 text-sm bg-surface-50 dark:bg-surface-800 hover:bg-primary-50 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 text-surface-700 dark:text-surface-300 rounded-xl transition-all duration-300 font-medium border border-transparent hover:border-primary-200 dark:hover:border-primary-700 transform hover:scale-[1.02]">
+            List columns </button>
+          <button
+            class="chatPrompt text-left px-3 py-2 sm:px-4 sm:py-3 text-sm bg-surface-50 dark:bg-surface-800 hover:bg-primary-50 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 text-surface-700 dark:text-surface-300 rounded-xl transition-all duration-300 font-medium border border-transparent hover:border-primary-200 dark:hover:border-primary-700 transform hover:scale-[1.02]">
+            Total revenue by region </button>
+          <button
+            class="chatPrompt text-left px-3 py-2 sm:px-4 sm:py-3 text-sm bg-surface-50 dark:bg-surface-800 hover:bg-primary-50 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 text-surface-700 dark:text-surface-300 rounded-xl transition-all duration-300 font-medium border border-transparent hover:border-primary-200 dark:hover:border-primary-700 transform hover:scale-[1.02]">
+            Plot sales over time </button>
+        </div>
+      </div>
+    </aside>
+    <!-- Modern Enhanced Center: Table -->
+    <section class="xl:col-span-6 bg-white dark:bg-dark-bg-secondary rounded-2xl shadow-soft dark:shadow-dark-soft border border-surface-200 dark:border-dark-border flex flex-col hover:shadow-medium dark:hover:shadow-dark-medium transition-all duration-300">
+      <div class="p-4 sm:p-6 border-b border-surface-200 dark:border-dark-border bg-gradient-to-r from-surface-50 to-surface-100 dark:from-surface-800 dark:to-surface-900 rounded-t-2xl">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-medium">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 5v4m8-4v4"></path>
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-xl sm:text-2xl font-bold text-surface-900 dark:text-dark-text-primary">Data Table</h2>
+              <div class="text-sm text-surface-500 dark:text-surface-400">Active file: <strong id="activeFileName" class="text-surface-700 dark:text-surface-300">— none —</strong></div>
+            </div>
+          </div>
+          <div class="flex gap-2 items-center">
+            <button id="undoBtn"
+              class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium disabled:opacity-50"
+              disabled title="Undo (Ctrl+Z)"> ↶ Undo </button>
+            <button id="redoBtn"
+              class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium disabled:opacity-50"
+              disabled title="Redo (Ctrl+Y)"> ↷ Redo </button>
+            <button id="addColBtn"
+              class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
+              + Column </button>
+            <button id="addRowBtn"
+              class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
+              + Row </button>
+            <button id="deleteSelectedBtn"
+              class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium">
+              Delete Selected </button>
+            <button id="exportCsvBtn"
+              class="px-3 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors text-sm font-medium">
+              Export CSV </button>
+          </div>
+        </div>
+        <!-- Search and Filter Bar -->
+        <div class="flex gap-3 items-center">
+          <div class="flex-1 relative">
+            <svg class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none"
+              stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input id="searchInput" type="text" placeholder="Search data... (Ctrl+F)"
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm">
+          </div>
+          <select id="filterColumn"
+            class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+            <option value="">All columns</option>
+          </select>
+          <button id="clearFilterBtn"
+            class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"> Clear
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 overflow-auto">
+        <div class="min-h-0">
+          <table id="dataTable" class="min-w-full text-sm">
+            <thead id="tableHead" class="bg-gray-50 sticky top-0 border-b border-gray-200"></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="p-4 border-t border-gray-200 bg-gray-50">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-4">
+            <div id="tableStats" class="text-sm text-gray-600 font-medium">0 rows • 0 cols</div>
+            <div id="filterStats" class="text-sm text-gray-500 hidden">0 filtered results</div>
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-gray-600">Show:</label>
+              <select id="pageSizeSelect" class="text-sm border border-gray-300 rounded px-2 py-1">
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="500">500</option>
+              </select>
+              <span class="text-sm text-gray-600">rows</span>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button id="prevPage"
+              class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-white transition-colors text-sm"> Previous
+            </button>
+            <span id="pageInfo" class="px-3 py-1 text-sm text-gray-600">Page 1 of 1</span>
+            <button id="nextPage"
+              class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-white transition-colors text-sm"> Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Modern Enhanced Right Panel: Charts, Columns, Chat -->
+    <aside class="xl:col-span-3 space-y-4 sm:space-y-6">
+      <!-- Columns Panel -->
+      <div class="bg-white dark:bg-dark-bg-secondary rounded-2xl shadow-soft dark:shadow-dark-soft p-4 sm:p-6 border border-surface-200 dark:border-dark-border hover:shadow-medium dark:hover:shadow-dark-medium transition-all duration-300">
+        <h3 class="text-lg sm:text-xl font-bold text-surface-900 dark:text-dark-text-primary mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 sm:mr-3 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+              d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2z">
+            </path>
+          </svg> Columns
+        </h3>
+        <div id="columnsPanel" class="max-h-48 sm:max-h-64 overflow-auto space-y-2 scrollbar-thin scrollbar-track-surface-100 dark:scrollbar-track-surface-800 scrollbar-thumb-surface-300 dark:scrollbar-thumb-surface-600"></div>
+      </div>
+      <!-- Data Insights -->
+      <div class="bg-white dark:bg-dark-bg-secondary rounded-2xl shadow-soft dark:shadow-dark-soft p-4 sm:p-6 border border-surface-200 dark:border-dark-border hover:shadow-medium dark:hover:shadow-dark-medium transition-all duration-300">
+        <h3 class="text-lg sm:text-xl font-bold text-surface-900 dark:text-dark-text-primary mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 sm:mr-3 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg> Data Insights
+        </h3>
+        <div id="dataInsights" class="space-y-3 text-sm">
+          <div class="text-surface-500 dark:text-surface-400 p-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl text-center">Select a file to view insights</div>
+        </div>
+      </div>
+      <!-- Chart Panel -->
+      <div class="bg-white dark:bg-dark-bg-secondary rounded-2xl shadow-soft dark:shadow-dark-soft p-4 sm:p-6 border border-surface-200 dark:border-dark-border hover:shadow-medium dark:hover:shadow-dark-medium transition-all duration-300">
+        <h3 class="text-lg sm:text-xl font-bold text-surface-900 dark:text-dark-text-primary mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 sm:mr-3 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+            </path>
+          </svg> Chart
+        </h3>
+        <select id="chartColumnSelect"
+          class="w-full rounded-xl border border-surface-300 dark:border-surface-600 px-4 py-3 mb-4 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-400 dark:focus:border-primary-400 bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 shadow-soft focus:shadow-medium transition-all duration-300">
+          <option value="">Select numeric column</option>
+        </select>
+        <div class="bg-surface-50 dark:bg-surface-800/50 rounded-xl p-4 border border-surface-200 dark:border-surface-700">
+          <canvas id="miniChart" height="200"></canvas>
+        </div>
+      </div>
+      <!-- Chat Assistant -->
+      <div class="bg-white dark:bg-dark-bg-secondary rounded-2xl shadow-soft dark:shadow-dark-soft p-4 sm:p-6 border border-surface-200 dark:border-dark-border hover:shadow-medium dark:hover:shadow-dark-medium transition-all duration-300">
+        <h3 class="text-lg sm:text-xl font-bold text-surface-900 dark:text-dark-text-primary mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 sm:mr-3 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+            </path>
+          </svg> AI Assistant
+        </h3>
+        <div id="chatBox" class="chatbox mb-4 bg-surface-50 dark:bg-surface-800/50 rounded-xl p-3 min-h-[120px] border border-surface-200 dark:border-surface-700"></div>
+        <div class="space-y-3">
+          <div class="flex gap-2">
+            <input id="chatInput"
+              class="flex-1 border border-surface-300 dark:border-surface-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-400 dark:focus:border-primary-400 bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder-surface-500 dark:placeholder-surface-400 shadow-soft focus:shadow-medium transition-all duration-300"
+              placeholder="Ask about your data..." />
+            <button id="chatSend"
+              class="px-4 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-700 dark:to-secondary-700 text-white rounded-xl hover:from-primary-700 hover:to-secondary-700 dark:hover:from-primary-800 dark:hover:to-secondary-800 transition-all duration-300 font-semibold shadow-soft hover:shadow-medium transform hover:scale-[1.02] active:scale-[0.98]">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="grid grid-cols-1 gap-2">
+            <button id="exportChatPdfBtn"
+              class="px-3 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-surface-700 to-surface-800 dark:from-surface-600 dark:to-surface-700 text-white rounded-xl hover:from-surface-800 hover:to-surface-900 dark:hover:from-surface-700 dark:hover:to-surface-800 transition-all duration-300 text-sm font-semibold shadow-soft hover:shadow-medium transform hover:scale-[1.02] active:scale-[0.98]">
+              <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>Export Chat PDF
+            </button>
+            <button id="exportSummaryPdfBtn"
+              class="px-3 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-green-600 to-emerald-700 dark:from-green-700 dark:to-emerald-800 text-white rounded-xl hover:from-green-700 hover:to-emerald-800 dark:hover:from-green-800 dark:hover:to-emerald-900 transition-all duration-300 text-sm font-semibold shadow-soft hover:shadow-medium transform hover:scale-[1.02] active:scale-[0.98]">
+              <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>Export Summary PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+  <!-- Modern Help Modal -->
+  <div id="helpModal" class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-dark-bg-secondary rounded-2xl shadow-strong dark:shadow-dark-strong max-w-2xl w-full m-4 max-h-[90vh] overflow-auto border border-surface-200 dark:border-dark-border">
+      <div class="p-6 border-b border-surface-200 dark:border-dark-border bg-gradient-to-r from-surface-50 to-surface-100 dark:from-surface-800 dark:to-surface-900 rounded-t-2xl">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl sm:text-2xl font-bold text-surface-900 dark:text-dark-text-primary">Keyboard Shortcuts & Tips</h3>
+          <button id="closeHelpBtn" class="text-surface-400 dark:text-surface-500 hover:text-surface-600 dark:hover:text-surface-400 p-2 rounded-xl hover:bg-surface-100 dark:hover:bg-surface-700 transition-all duration-300">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="p-6 space-y-6">
+        <div>
+          <h4 class="font-bold text-surface-900 dark:text-surface-100 mb-3 text-lg">Navigation</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl">
+              <kbd class="bg-primary-100 dark:bg-primary-900/50 text-primary-800 dark:text-primary-300 px-3 py-2 rounded-lg font-mono font-semibold">Ctrl+F</kbd>
+              <span class="text-surface-700 dark:text-surface-300">Search data</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl">
+              <kbd class="bg-primary-100 dark:bg-primary-900/50 text-primary-800 dark:text-primary-300 px-3 py-2 rounded-lg font-mono font-semibold">Escape</kbd>
+              <span class="text-surface-700 dark:text-surface-300">Clear search</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl">
+              <kbd class="bg-primary-100 dark:bg-primary-900/50 text-primary-800 dark:text-primary-300 px-3 py-2 rounded-lg font-mono font-semibold">Tab</kbd>
+              <span class="text-surface-700 dark:text-surface-300">Next cell</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl">
+              <kbd class="bg-primary-100 dark:bg-primary-900/50 text-primary-800 dark:text-primary-300 px-3 py-2 rounded-lg font-mono font-semibold">Shift+Tab</kbd>
+              <span class="text-surface-700 dark:text-surface-300">Previous cell</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-bold text-surface-900 dark:text-surface-100 mb-3 text-lg">Editing</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl">
+              <kbd class="bg-secondary-100 dark:bg-secondary-900/50 text-secondary-800 dark:text-secondary-300 px-3 py-2 rounded-lg font-mono font-semibold">Ctrl+Z</kbd>
+              <span class="text-surface-700 dark:text-surface-300">Undo</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl">
+              <kbd class="bg-secondary-100 dark:bg-secondary-900/50 text-secondary-800 dark:text-secondary-300 px-3 py-2 rounded-lg font-mono font-semibold">Ctrl+Y</kbd>
+              <span class="text-surface-700 dark:text-surface-300">Redo</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl">
+              <kbd class="bg-secondary-100 dark:bg-secondary-900/50 text-secondary-800 dark:text-secondary-300 px-3 py-2 rounded-lg font-mono font-semibold">Delete</kbd>
+              <span class="text-surface-700 dark:text-surface-300">Clear cell</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl">
+              <kbd class="bg-secondary-100 dark:bg-secondary-900/50 text-secondary-800 dark:text-secondary-300 px-3 py-2 rounded-lg font-mono font-semibold">Enter</kbd>
+              <span class="text-surface-700 dark:text-surface-300">Save cell</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-bold text-surface-900 dark:text-surface-100 mb-3 text-lg">File Operations</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl">
+              <kbd class="bg-accent-100 dark:bg-accent-900/50 text-accent-800 dark:text-accent-300 px-3 py-2 rounded-lg font-mono font-semibold">Ctrl+S</kbd>
+              <span class="text-surface-700 dark:text-surface-300">Export CSV</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl">
+              <kbd class="bg-accent-100 dark:bg-accent-900/50 text-accent-800 dark:text-accent-300 px-3 py-2 rounded-lg font-mono font-semibold">Ctrl+O</kbd>
+              <span class="text-surface-700 dark:text-surface-300">Open file dialog</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl">
+              <kbd class="bg-accent-100 dark:bg-accent-900/50 text-accent-800 dark:text-accent-300 px-3 py-2 rounded-lg font-mono font-semibold">?</kbd>
+              <span class="text-surface-700 dark:text-surface-300">Show this help</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl">
+              <kbd class="bg-accent-100 dark:bg-accent-900/50 text-accent-800 dark:text-accent-300 px-3 py-2 rounded-lg font-mono font-semibold">Ctrl+N</kbd>
+              <span class="text-surface-700 dark:text-surface-300">New column</span>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-surface-200 dark:border-surface-700 pt-6">
+          <h4 class="font-bold text-surface-900 dark:text-surface-100 mb-3 text-lg">Performance Tips</h4>
+          <div class="bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 p-4 rounded-xl border border-primary-200 dark:border-primary-800">
+            <ul class="text-sm text-surface-700 dark:text-surface-300 space-y-2">
+              <li class="flex items-start">
+                <svg class="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                Use filters to reduce visible data for better performance
+              </li>
+              <li class="flex items-start">
+                <svg class="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                Larger page sizes may slow down rendering
+              </li>
+              <li class="flex items-start">
+                <svg class="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                Auto-clean removes empty rows and optimizes data types
+              </li>
+              <li class="flex items-start">
+                <svg class="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                Validate data to detect inconsistencies early
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="modalRoot"></div>
+  <script type="module" src="./script.js"></script>
+</body>
+
+</html>
