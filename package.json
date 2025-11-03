@@ -1,0 +1,69 @@
+{
+  "name": "smart-spreadsheet-dashboard",
+  "version": "2.0.0",
+  "description": "AI-Powered Spreadsheet Dashboard with Advanced Performance Optimizations",
+  "main": "src/app-optimized.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "vite preview --port 3000",
+    "lint": "eslint src --ext .js,.ts --fix",
+    "lint:check": "eslint src --ext .js,.ts",
+    "format": "prettier --write src/**/*.{js,ts,css,html}",
+    "format:check": "prettier --check src/**/*.{js,ts,css,html}",
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "analyze": "npm run build && npx vite-bundle-analyzer dist/assets/*.js",
+    "clean": "rimraf dist",
+    "optimize": "npm run clean && npm run build && npm run analyze"
+  },
+  "dependencies": {
+    "papaparse": "^5.4.1",
+    "chart.js": "^4.4.0",
+    "jspdf": "^2.5.1"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "vite-plugin-pwa": "^0.17.0",
+    "@vitejs/plugin-legacy": "^5.0.0",
+    "typescript": "^5.0.0",
+    "eslint": "^8.55.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "prettier": "^3.1.0",
+    "vitest": "^1.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "rimraf": "^5.0.0",
+    "vite-bundle-analyzer": "^0.7.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6",
+    "workbox-build": "^7.0.0",
+    "rollup-plugin-visualizer": "^5.10.0"
+  },
+  "browserslist": [
+    "> 0.5%",
+    "last 2 versions",
+    "Firefox ESR",
+    "not dead",
+    "not IE 11"
+  ],
+  "keywords": [
+    "spreadsheet",
+    "dashboard",
+    "data-analysis",
+    "csv",
+    "performance",
+    "typescript",
+    "vite"
+  ],
+  "author": "Smart Dashboard Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourname/smart-spreadsheet-dashboard.git"
+  }
+}
