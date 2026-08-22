@@ -37,7 +37,7 @@
     "vitest": "^1.0.0",
     "@vitest/coverage-v8": "^1.0.0",
     "rimraf": "^5.0.0",
-    "vite-bundle-analyzer": "^0.7.0",
+    "vite-bundle-analyzer": "^0.23.0",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.3.6",
