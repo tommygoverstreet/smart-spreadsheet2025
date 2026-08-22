@@ -134,21 +134,24 @@ class PerformanceMonitor {
   }
 
   updateMemoryUsage() {
-    if (performance.memory) {
+    const memoryElement = document.getElementById('memoryUsage');
+    if (performance.memory && memoryElement) {
       this.metrics.memoryUsage = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024);
-      document.getElementById('memoryUsage').textContent = `${this.metrics.memoryUsage} MB`;
+      memoryElement.textContent = `${this.metrics.memoryUsage} MB`;
     }
   }
 
   updateCacheHitRate() {
     const total = this.metrics.cacheHits + this.metrics.cacheMisses;
     const rate = total > 0 ? Math.round((this.metrics.cacheHits / total) * 100) : 0;
-    document.getElementById('cacheHitRate').textContent = `${rate}%`;
+    const cacheHitRateElement = document.getElementById('cacheHitRate');
+    if (cacheHitRateElement) cacheHitRateElement.textContent = `${rate}%`;
   }
 
   recordRenderTime(time) {
     this.metrics.renderTime = Math.round(time);
-    document.getElementById('renderTime').textContent = `${this.metrics.renderTime}ms`;
+    const renderTimeElement = document.getElementById('renderTime');
+    if (renderTimeElement) renderTimeElement.textContent = `${this.metrics.renderTime}ms`;
   }
 
   recordCacheHit() { this.metrics.cacheHits++; }
@@ -269,8 +272,6 @@ const state = {
   activeId: null,
   page: 0,
   perPage: 25,
-  history: [],
-  future: [],
   searchTerm: '',
   filterColumn: '',
   filteredRows: null,
@@ -280,6 +281,69 @@ const state = {
     caching: true
   }
 };
+
+class HistoryController {
+  constructor(appState, maxSnapshots = 50) {
+    this.appState = appState;
+    this.maxSnapshots = maxSnapshots;
+    this.history = [];
+    this.future = [];
+  }
+
+  serializeState() {
+    return JSON.stringify({
+      files: this.appState.files,
+      activeId: this.appState.activeId
+    });
+  }
+
+  commit() {
+    const snapshot = this.serializeState();
+    if (this.history[this.history.length - 1] === snapshot) return;
+
+    this.history.push(snapshot);
+    if (this.history.length > this.maxSnapshots) this.history.shift();
+    this.future = [];
+  }
+
+  undo() {
+    if (this.history.length < 2) return false;
+    const current = this.history.pop();
+    this.future.push(current);
+    this.applySnapshot(this.history[this.history.length - 1]);
+    return true;
+  }
+
+  redo() {
+    if (!this.future.length) return false;
+    const next = this.future.pop();
+    this.history.push(next);
+    this.applySnapshot(next);
+    return true;
+  }
+
+  canUndo() {
+    return this.history.length > 1;
+  }
+
+  canRedo() {
+    return this.future.length > 0;
+  }
+
+  reset() {
+    this.history = [];
+    this.future = [];
+    this.commit();
+  }
+
+  applySnapshot(snapshot) {
+    const parsed = JSON.parse(snapshot);
+    this.appState.files = parsed.files || [];
+    this.appState.activeId = parsed.activeId || this.appState.files[0]?.id || null;
+  }
+}
+
+const historyController = new HistoryController(state);
 
 const uid = (n = 6) =>
   Math.random()
@@ -379,7 +443,7 @@ document.addEventListener('keydown', (e) => {
     if (getActive()) addColBtn.click();
   }
   // ? - Show help
-  else if (e.key === '?' && !e.ctrlKey && !e.shiftKey) {
+  else if (e.key === '?' && !e.ctrlKey) {
     e.preventDefault();
     showHelp();
   }
@@ -477,59 +541,25 @@ function clearSearch() {
 }
 
 function pushHistory() {
-  const currentState = JSON.parse(JSON.stringify({
-    files: state.files,
-    activeId: state.activeId
-  }));
-
-  state.history.push(currentState);
-  if (state.history.length > 50) state.history.shift(); // Limit history size
-
-  state.future = []; // Clear future when new action is performed
+  historyController.commit();
   updateUndoRedoButtons();
 }
 
 function performUndo() {
-  if (state.history.length === 0) return;
-
-  const currentState = {
-    files: JSON.parse(JSON.stringify(state.files)),
-    activeId: state.activeId
-  };
-
-  state.future.push(currentState);
-  const previousState = state.history.pop();
-
-  state.files = previousState.files;
-  state.activeId = previousState.activeId;
-
+  if (!historyController.undo()) return;
   renderAll();
-  saveLocal();
   updateUndoRedoButtons();
 }
 
 function performRedo() {
-  if (state.future.length === 0) return;
-
-  const currentState = {
-    files: JSON.parse(JSON.stringify(state.files)),
-    activeId: state.activeId
-  };
-
-  state.history.push(currentState);
-  const futureState = state.future.pop();
-
-  state.files = futureState.files;
-  state.activeId = futureState.activeId;
-
+  if (!historyController.redo()) return;
   renderAll();
-  saveLocal();
   updateUndoRedoButtons();
 }
 
 function updateUndoRedoButtons() {
-  undoBtn.disabled = state.history.length === 0;
-  redoBtn.disabled = state.future.length === 0;
+  undoBtn.disabled = !historyController.canUndo();
+  redoBtn.disabled = !historyController.canRedo();
 }
 
 function optimizeData() {
@@ -1742,39 +1772,6 @@ function closeModal() {
   document.getElementById("modalRoot").innerHTML = "";
 }
 
-// --- History (undo/redo minimal) ---
-function pushHistory() {
-  try {
-    const snap = JSON.stringify({ files: state.files });
-    state.history.push(snap);
-    if (state.history.length > 50) state.history.shift();
-    state.future = [];
-  } catch (e) { }
-}
-
-// --- Misc helpers for UI ---
-function showColumnSample(col) {
-  const f = getActive();
-  if (!f) return;
-  const s = f.rows
-    .slice(0, 50)
-    .map((r) => r[col])
-    .slice(0, 30);
-  openModal(
-    `<div><h3 class="font-semibold">Sample: ${escapeHtml(
-      col
-    )}</h3><div class="max-h-48 overflow-auto p-2 border rounded text-xs">${s
-      .map((x) => escapeHtml(String(x)))
-      .join(
-        "<br/>"
-      )}</div><div class="text-right mt-2"><button id="closeS" class="px-3 py-1 border rounded">Close</button></div></div>`
-  );
-  document.getElementById("closeS").addEventListener("click", closeModal);
-}
-function showColumnStats(col) {
-  showColumnStats;
-} // already implemented above as showColumnStats (kept for compatibility)
-
 // --- Export / clear workspace ---
 exportWorkspaceBtn.addEventListener("click", () => {
   const blob = new Blob([JSON.stringify({ files: state.files }, null, 2)], {
@@ -1786,31 +1783,10 @@ clearWorkspaceBtn.addEventListener("click", () => {
   if (!confirm("Clear workspace?")) return;
   state.files = [];
   state.activeId = null;
+  historyController.reset();
   saveLocal();
   renderAll();
 });
-
-// --- Small helpers & binding ---
-function csvEscape(v) {
-  if (v == null) v = "";
-  v = String(v);
-  if (v.includes(",") || v.includes('"') || v.includes("\n"))
-    return `"${v.replace(/"/g, '""')}"`;
-  return v;
-}
-function downloadBlobFn(blob, name) {
-  downloadBlob(blob, name);
-}
-function downloadBlob(blob, name) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
 
 // --- small wrappers to link UI buttons to functions ---
 addRowBtn.addEventListener("click", addRow);
@@ -1875,16 +1851,16 @@ if (!state.files.length) {
   };
   state.files.push(demo);
   state.activeId = demo.id;
-  pushHistory();
-  saveLocal();
 }
+pushHistory();
+saveLocal();
 renderAll();
 
 // Initialize theme manager for dark/light mode toggle
 const themeManager = new ThemeManager();
 
 // Initialize error handler
-ErrorHandler.init();
+// already initialized near top-level bootstrap
 
 // Feature status tracking for production readiness
 const FeatureStatus = {
@@ -1958,26 +1934,4 @@ function renderAll() {
   renderTable();
   updateUndoRedoButtons();
   saveLocal();
-}
-
-// --- Helper placeholders used earlier (avoids duplication) ---
-function showColumnStats(col) {
-  const f = getActive();
-  if (!f) return;
-  const vals = f.rows
-    .map((r) => {
-      const n = parseFloat(String(r[col]).replace(/[^0-9.-]+/g, ""));
-      return isNaN(n) ? null : n;
-    })
-    .filter((x) => x !== null);
-  if (!vals.length) return alert("No numeric values");
-  const sum = vals.reduce((a, b) => a + b, 0);
-  const avg = sum / vals.length;
-  const min = Math.min(...vals);
-  const max = Math.max(...vals);
-  openModal(
-    `<div><h3 class="font-semibold">Stats: ${escapeHtml(col)}</h3><div>Count: ${vals.length
-    }</div><div>Sum: ${sum}</div><div>Avg: ${avg}</div><div>Min: ${min}</div><div>Max: ${max}</div><div class="text-right mt-2"><button id="closeSt" class="px-3 py-1 border rounded">Close</button></div></div>`
-  );
-  document.getElementById("closeSt").addEventListener("click", closeModal);
 }
